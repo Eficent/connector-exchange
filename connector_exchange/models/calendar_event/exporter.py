@@ -149,12 +149,12 @@ class CalendarEventExporter(ExchangeExporter):
         """
         result = False
         if event.required_attendees:
-            att = event.required_attendees
-            att_mail = att.mailbox.email_address
-            if (att_mail == attendee_email or
-                    att_mail == self.openerp_user.email):
-                return True
-
+            atts = event.required_attendees
+            for att in atts:
+                att_mail = att.mailbox.email_address
+                if (att_mail == attendee_email or
+                        att_mail == self.openerp_user.email):
+                    return True
         return result
 
     def fill_attendees(self, event):
@@ -169,15 +169,17 @@ class CalendarEventExporter(ExchangeExporter):
             'declined': 'Decline',
             'accepted': 'Accept',
         }
+        atts=[]
         for attendee in self.binding.attendee_ids:
             if attendee.email == self.openerp_user.email:
                 continue
             # cn, email
             if event.required_attendees:
-                att = event.required_attendees
-                if att.mailbox.email_address == attendee.email:
-                    att.response_type = \
-                        STATES_MAPPING.get(attendee.state, 'Unknown')
+                atts = event.required_attendees
+                for att in atts:
+                    if att.mailbox.email_address == attendee.email:
+                        att.response_type = \
+                            STATES_MAPPING.get(attendee.state, 'Unknown')
             if (not self._attendee_already_exists(
                     attendee.email, event)):
                 att = Attendee(
@@ -186,8 +188,8 @@ class CalendarEventExporter(ExchangeExporter):
                                     ),
                     response_type='Accept',
                 )
-
-                event.required_attendees = att
+                atts.append(att)
+        event.required_attendees = atts
 
     def fill_recurrency(self, event):
         """
