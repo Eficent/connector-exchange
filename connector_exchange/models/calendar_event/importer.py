@@ -15,11 +15,13 @@ from ...unit.importer import (ExchangeImporter,
 from odoo.tools import (DEFAULT_SERVER_DATETIME_FORMAT,
                         DEFAULT_SERVER_DATE_FORMAT,
                         )
+import pytz
+from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
 
 try:
-    from exchangelib import fields as ex_fields
+    from exchangelib import fields as ex_fields, EWSTimeZone
 except (ImportError, IOError) as err:
     _logger.debug(err)
 
@@ -34,13 +36,19 @@ SIMPLE_VALUE_FIELDS = {'subject': 'name',
 FREE_LIST = ['Free', 'Busy']
 
 
-def transform_to_odoo_date(exchange_date, allday=False):
+def transform_to_odoo_date(exchange_date, user_tz=None, allday=False):
+    # time needed for tz
     fmt = DEFAULT_SERVER_DATETIME_FORMAT
-    if allday:
-        fmt = DEFAULT_SERVER_DATE_FORMAT
-
-    return datetime.datetime.strftime(
-        exchange_date, fmt)
+    if user_tz:
+        tz = pytz.timezone(user_tz)
+    else:
+        tz = EWSTimeZone.timezone('UTC')
+    if not allday:
+        return datetime.datetime.strftime(
+            exchange_date.replace(tzinfo=tz), fmt)
+    else:
+        return datetime.datetime.strftime(
+            exchange_date.replace(tzinfo=tz), fmt)
 
 
 @exchange_2010
@@ -49,13 +57,23 @@ class CalendarEventImporter(ExchangeImporter):
 
     def fill_start_end(self, event_instance):
         vals = {}
+        user_tz = self.openerp_user.tz
         if event_instance.is_all_day:
             # fill start_date and stop_date
             vals['allday'] = True
+            # this prevent to spand two days in Odoo
+            startdate = event_instance.start
+            enddate = event_instance.end - timedelta(seconds=1)
+
             vals['start'] = transform_to_odoo_date(
-                event_instance.start, allday=event_instance.is_all_day)
+                startdate,
+                user_tz=user_tz,
+                allday=event_instance.is_all_day)
+
             vals['stop'] = transform_to_odoo_date(
-                event_instance.end, allday=event_instance.is_all_day)
+                enddate,
+                user_tz=user_tz,
+                allday=event_instance.is_all_day)
         else:
             # fill start_datetime and stop_datetime
             vals['allday'] = False
