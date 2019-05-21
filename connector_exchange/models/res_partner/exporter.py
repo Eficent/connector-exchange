@@ -28,10 +28,10 @@ def _compute_subst(binding):
     return {
         'street_computed': _construct_street(binding,
                                              sep=EXCHANGE_STREET_SEPARATOR),
-        'city': binding.city,
-        'zipcode': binding.zip,
-        'state': binding.state_id.name or "/",
-        'country': binding.country_id.name,
+        'city': binding.city or "",
+        'zipcode': binding.zip or "",
+        'state': binding.state_id.name or "",
+        'country': binding.country_id.name or "",
     }
 
 
@@ -163,10 +163,10 @@ class PartnerExporter(ExchangeExporter):
                     for mails_inst in contact.phone_numbers:
                         if mails_inst.label == PHONE_VALUE_FIELDS[f]:
                             not_found = False
-                            mails_inst.phone_number = getattr(self.binding, f)
+                            mails_inst.phone_number = getattr(self.binding, f) or ""
                 if not_found:
                     value = PhoneNumber(label=PHONE_VALUE_FIELDS[f],
-                                        phone_number=getattr(self.binding, f))
+                                        phone_number=getattr(self.binding, f) or "")
                     if isinstance(contact.phone_numbers, list):
                         contact.phone_numbers.append(value)
                     else:
