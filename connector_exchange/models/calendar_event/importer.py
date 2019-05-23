@@ -177,14 +177,12 @@ class CalendarEventImporter(ExchangeImporter):
                 elif not partner_added:
                     # search by name and email
                     contact = contact.search(
-                        [('email', '=', attendee.mailbox.email_address),
-                         ('is_company', '=', False)],
+                        [('email', '=', attendee.mailbox.email_address)],
                         order='create_date asc',
                         limit=1
                     )
                     partner = self.env['res.partner'].search(
-                        [('email', '=', attendee.mailbox.email_address),
-                         ('is_company', '=', False)],
+                        [('email', '=', attendee.mailbox.email_address)],
                         limit=1
                     )
                     if contact:

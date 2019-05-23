@@ -297,7 +297,8 @@ class PartnerDisabler(ExchangeDisabler):
             move contact to "Odoo Deleted" Folder.
         """
         contact = account.calendar.get(id=contact_id)
-        contact.delete()
+        if contact:
+            contact.delete()
 
     def _run(self, external_id, user_id):
         """ Implementation of the deletion """

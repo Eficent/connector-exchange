@@ -19,6 +19,7 @@ try:
     from exchangelib import (EWSDateTime, EWSTimeZone, Mailbox, Attendee,
                              CalendarItem, fields)
     from exchangelib.items import SEND_ONLY_TO_ALL
+    from exchangelib.errors import ErrorItemNotFound
 except (ImportError, IOError) as err:
     _logger.debug(err)
 
@@ -357,8 +358,7 @@ class CalendarEventExporter(ExchangeExporter):
         return self.env['exchange.calendar.event'].with_delay().import_record(
             self.backend_record,
             user,
-            calendar_event_instance.item_id,
-            priority=30)
+            calendar_event_instance.item_id)
 
     def run_delayed_delete_of_exchange_calendar_event(self, user_id,
                                                       calendar_event_instance):
@@ -382,6 +382,8 @@ class CalendarEventExporter(ExchangeExporter):
              'change_key': response.changekey})
 
     def change_key_equals(self, exchange_record):
+        if isinstance(exchange_record, ErrorItemNotFound):
+            return True
         return (
             exchange_record.changekey == self.binding.change_key)
 
