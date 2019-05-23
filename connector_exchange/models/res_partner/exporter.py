@@ -240,6 +240,8 @@ class PartnerExporter(ExchangeExporter):
         assert self.binding
         user = self.binding.user_id
         self.openerp_user = user
+        if not user.exchange_sync:
+            return
         if not self.binding.external_id:
             fields = None
 
