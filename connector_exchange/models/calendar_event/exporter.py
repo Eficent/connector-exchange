@@ -129,6 +129,8 @@ class CalendarEventExporter(ExchangeExporter):
 
     def fill_start_end(self, event):
         event.is_all_day = self.binding.allday
+        if not event:
+            return
         if self.binding.allday:
             start = self.parse_date(self.binding.start,
                                     all_day=self.binding.allday,
