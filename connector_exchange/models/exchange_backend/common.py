@@ -126,7 +126,7 @@ class ExchangeBackend(models.Model):
                         priority=30).import_record(
                             backend,
                             user,
-                            exchange_contact.item_id)
+                            exchange_contact.id)
         return True
 
     @api.model
@@ -191,8 +191,8 @@ class ExchangeBackend(models.Model):
                             ).import_record(
                                 backend,
                                 user,
-                                exchange_event.item_id)
-                        imported_events.append(exchange_event.item_id)
+                                exchange_event.id)
+                        imported_events.append(exchange_event.id)
 
                 to_delete = list(set(existing_events) - set(imported_events))
                 cal_ex_obj = self.env['exchange.calendar.event']

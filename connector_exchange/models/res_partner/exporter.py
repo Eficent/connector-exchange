@@ -152,7 +152,7 @@ class PartnerExporter(ExchangeExporter):
                         if getattr(addr, fi) is None:
                             setattr(addr, fi, ' ')
 
-        if 'email' in fields:
+        if 'email' in fields and self.binding.email:
             contact.email_addresses = [EmailAddress(label='EmailAddress1',
                                                     email=self.binding.email)]
         phones_to_update = set(PHONE_VALUE_FIELDS.keys()) & set(fields)
@@ -240,7 +240,7 @@ class PartnerExporter(ExchangeExporter):
         assert self.binding
         user = self.binding.user_id
         self.openerp_user = user
-        if not user.exchange_sync:
+        if not user.exchange_synch:
             return
         if not self.binding.external_id:
             fields = None

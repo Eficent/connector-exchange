@@ -135,7 +135,7 @@ class PartnerExchangeImporter(ExchangeImporter):
         vals.update(self.map_business_address(contact_instance))
 
         vals.update(change_key=contact_instance.changekey,
-                    external_id=contact_instance.item_id)
+                    external_id=contact_instance.id)
         return vals
 
     def map_email(self, contact_instance):
@@ -144,10 +144,11 @@ class PartnerExchangeImporter(ExchangeImporter):
         fill the 'email' odoo field with the value found
         """
         email = None
-        for mail_addr in contact_instance.email_addresses:
-            if mail_addr.email:
-                email = mail_addr.email
-                break
+        if contact_instance.email_addresses:
+            for mail_addr in contact_instance.email_addresses:
+                if mail_addr.email:
+                    email = mail_addr.email
+                    break
 
         return {'email': email}
 
@@ -159,6 +160,8 @@ class PartnerExchangeImporter(ExchangeImporter):
             - mobile: MobilePhone
         """
         vals = {'phone': None, 'mobile': None, 'fax': None}
+        if not contact_instance.phone_numbers:
+            return vals
         for phone_inst in contact_instance.phone_numbers:
             if phone_inst.label == 'BusinessPhone':
                 vals['phone'] = phone_inst.phone_number

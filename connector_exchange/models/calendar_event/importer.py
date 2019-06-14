@@ -303,7 +303,7 @@ class CalendarEventImporter(ExchangeImporter):
         vals.update(self.fill_recurrency(event_instance))
 
         vals.update(change_key=event_instance.changekey,
-                    external_id=event_instance.item_id)
+                    external_id=event_instance.id)
 
         return vals
 
