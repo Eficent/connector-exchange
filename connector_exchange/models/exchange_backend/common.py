@@ -55,7 +55,6 @@ class ExchangeBackend(models.Model):
     )
     disable_autodiscover = fields.Boolean(default=False)
     location = fields.Char(
-        required=True,
         help="Address of Exchange WSDL",
     )
     last_import_date = fields.Datetime(string='Last Import Date')
