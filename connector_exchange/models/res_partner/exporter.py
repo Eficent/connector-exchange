@@ -36,20 +36,22 @@ def _compute_subst(binding):
 
 
 def _construct_street(rec, sep=' '):
-        streets = [rec.street, rec.street2, rec.street3]
-        return sep.join(part for part in streets if part)
+    streets = [rec.street, rec.street2, rec.street3]
+    return sep.join(part for part in streets if part)
 
 
-SIMPLE_VALUE_FIELDS = {'firstname': 'given_name',
-                       'name': 'display_name',
-                       'lastname': 'nickname',
-                       'website': 'business_homepage',
-                       'function': 'job_title',
-                       # 'email': ['email_addresses'],
-                       # 'phone': ['phone_numbers'],
-                       # 'fax': ['phone_numbers'],
-                       # 'mobile': ['phone_numbers']
-                       }
+SIMPLE_VALUE_FIELDS = {
+    'name': 'display_name',
+    'firstname': 'given_name',
+    'website': 'business_homepage',
+    'function': 'job_title',
+    'lastname': 'surname',
+    # 'email': ['email_addresses'],
+    # 'firstname': 'given_name',
+    # 'phone': ['phone_numbers'],
+    # 'fax': ['phone_numbers'],
+    # 'mobile': ['phone_numbers']
+}
 
 RELATIONAL_VALUE_FIELDS = {'title': ['complete_name', 'title'],
                            'parent_id': 'company_name',
@@ -69,7 +71,7 @@ ADDRESS_DICT = {'physical_addresses': {
     'zipcode': "%(zipcode)s",
     'state': "%(state)s",
     'country': "%(country)s"}
-    }
+}
 
 
 @exchange_2010
@@ -80,9 +82,9 @@ class PartnerExporter(ExchangeExporter):
         contact.file_as_mapping = 'FirstSpaceLast'
         if fields is None or fields == []:
             fields = (
-                SIMPLE_VALUE_FIELDS.keys() + RELATIONAL_VALUE_FIELDS.keys() +
-                ADDRESS_FIELDS + PHONE_VALUE_FIELDS.keys() + ['email']
-                )
+                    SIMPLE_VALUE_FIELDS.keys() + RELATIONAL_VALUE_FIELDS.keys() +
+                    ADDRESS_FIELDS + PHONE_VALUE_FIELDS.keys() + ['email']
+            )
 
         if 'lastname' in fields or 'firstname' in fields:
             fields.append('name')
@@ -127,7 +129,7 @@ class PartnerExporter(ExchangeExporter):
                         subst = _compute_subst(self.binding)
 
                         for key, valu in ADDRESS_DICT[
-                                "physical_addresses"].iteritems():
+                            "physical_addresses"].iteritems():
                             valu = valu % subst
                             if valu == 'False':
                                 valu = None
@@ -163,10 +165,12 @@ class PartnerExporter(ExchangeExporter):
                     for mails_inst in contact.phone_numbers:
                         if mails_inst.label == PHONE_VALUE_FIELDS[f]:
                             not_found = False
-                            mails_inst.phone_number = getattr(self.binding, f) or ""
+                            mails_inst.phone_number = getattr(self.binding,
+                                                              f) or ""
                 if not_found:
                     value = PhoneNumber(label=PHONE_VALUE_FIELDS[f],
-                                        phone_number=getattr(self.binding, f) or "")
+                                        phone_number=getattr(self.binding,
+                                                             f) or "")
                     if isinstance(contact.phone_numbers, list):
                         contact.phone_numbers.append(value)
                     else:
@@ -215,9 +219,9 @@ class PartnerExporter(ExchangeExporter):
         user = self.env['res.users'].browse(user_id)
         return self.env['exchange.res.partner'].with_delay(
             priority=30).import_record(
-                self.backend_record,
-                user,
-                contact_instance.itemid)
+            self.backend_record,
+            user,
+            contact_instance.itemid)
 
     def create_exchange_contact(self, fields):
         record = self._create_data(fields=fields)
@@ -234,7 +238,7 @@ class PartnerExporter(ExchangeExporter):
 
     def change_key_equals(self, exchange_record):
         return (
-            exchange_record.changekey == self.binding.change_key)
+                exchange_record.changekey == self.binding.change_key)
 
     def _run(self, fields=None):
         assert self.binding
@@ -260,7 +264,8 @@ class PartnerExporter(ExchangeExporter):
                 # Compare change_keys of odoo binding and Exchange record found
                 if self.change_key_equals(exchange_record):
                     # update contact
-                    self.update_existing(fields)
+                    if fields:
+                        self.update_existing(fields)
                 else:
                     # run a delayed import of this Exchange contact
                     # self.run_delayed_import_of_exchange_contact(
