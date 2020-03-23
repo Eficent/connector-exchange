@@ -14,7 +14,7 @@ _logger = logging.getLogger(__name__)
 
 
 SIMPLE_VALUE_FIELDS = {'given_name': 'firstname',
-                       'display_name': 'name',
+                       'name': 'name',
                        'complete_name': 'lastname',
                        'surname': 'lastname',
                        'business_homepage': 'website',
